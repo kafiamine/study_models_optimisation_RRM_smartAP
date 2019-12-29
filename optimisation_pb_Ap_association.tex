@@ -1,0 +1,763 @@
+\documentclass[journal,transmag]{IEEEtran}
+\usepackage{flushend}
+
+\usepackage{graphics}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{epsfig}
+
+\usepackage[table]{xcolor}
+\usepackage{ifpdf}
+\usepackage{color}
+\usepackage{multirow}
+\usepackage{cite}
+
+
+
+
+
+\definecolor{xy}{cmyk}{0,0.42,1,0}
+
+
+\begin{document}
+
+\title{Different Optimisation problems formulation for Client-AP  Association in WLAN networks}
+
+\author{\IEEEauthorblockN{Mohamed Amine Kafi\IEEEauthorrefmark{1},
+Alexandre Mouradian\IEEEauthorrefmark{1},
+V\'eronique V\`eque\IEEEauthorrefmark{1}}
+\IEEEauthorblockA{\IEEEauthorrefmark{1}L2S, CentraleSUPELEC, Paris sud University, FRANCE.}
+
+\thanks{%Manuscript received December 1, 2012; revised September 17, 2014. 
+Corresponding author: Mohamed Amine Kafi (email:kafiamine@gmail.com)}}
+
+
+
+\IEEEtitleabstractindextext{%
+\begin{abstract}
+In this study, we present different works that formulated the client-AP asscoiation as an optimisation problem in order to increase throughput and offer a network load balancing.
+
+
+\end{abstract}
+
+% Note that keywords are not normally used for peerreview papers.
+\begin{IEEEkeywords}
+Wireless Local Network (WLAN), Throughput, Controlers, 802.11, Ressource Control, intelligent networks, cellular radio, radio spectrum management, access point. 
+\end{IEEEkeywords}}
+
+% make the title area
+\maketitle
+
+\IEEEdisplaynontitleabstractindextext
+ \IEEEdisplaynontitleabstractindextext has no effect when using
+% compsoc or transmag under a non-conference mode.
+
+\IEEEpeerreviewmaketitle
+
+\section{Introduction}
+\IEEEPARstart{C}{}lient-Ap association was extensively treated in state-of the art works.     
+In this paper, we present the problem of client-AP association formulated as optimisation problems and try to unify the used notation in order to ease the comprehension of the difference between the formulated problems. In addition, we present the algorithms used to approach the problem solution, in case that the problem is complex. 
+The remainder of this study is organized as follows. In Section \ref{used notations}, we present the meaning of the notations that will be used thorough the paper in the optimisation problems. We present the different optimisation problems starting in section \ref{optimisation problems}. Finally, we conclude and give a summarization of the study in section \ref{Conclusion}.
+
+\section{The meaning of Notations}
+\label{used notations}
+In this section, we provide the used notations for the mathematical programming formulation of clients-access point association optimization. \\
+
+It is supposed that the central controller manages the whole network containing $m$ wireless local area networks, each one under the connectivity control of one access point. There are $n$ clients to be associated to one of many access points belonging to the control of the same centralised controller. The aim through the assignment of clients to a specific AP is to maximize the total downlink throughput of the whole network, while ensuring fairness between the different clients. Each access point $i$ has a maximum downlink rate limit of $R_i$. It is also supposed that a total number of $c$ channels is available to use by the access points and that each access point operate in a given channel $k$. The access points could serve different clients with different wireless link rates, so that $r_{ij}^k$ denotes the rate that access point $i$ serves the client $i$ on the channel $k$. As an access point serves a client for a specific duration in the whole schedule, the variable $t_{ij}^k$ denotes the fraction of the period that the Access point $i$ serves the client $j$ on the channel $k$. As a consequence, the variable $b_{ij}^k$ denotes the resulting bandwidth between the user $j$ and the access point $i$ on the channel $k$, ($t_{ij}^k \cdot r_{ij}^k = b_{ij}^k$). We denote by the variable $x_{ij}^k$ the possible association between the access point $i$ and the client $j$ on the channel $k$. Consequently, $x_{ij}^k$ is equal to 1 if client $j$ is associated to the access point $i$ over channel $k$, and equal to zero, else. \\
+
+
+Table \ref{problem_notations} summarizes our notations. \\
+
+%=================================================
+\begin{center} 
+%\begin{footnotesize}
+\begin{table}[htbp]
+\centering
+\begin{tabular}{|c|l|} %\
+\hline
+Notation 		& Description \\
+\hline
+$A$				& Set of available access points\\
+$m$				& Number of concerned Access points, $|A|=m$ \\
+$U$				& Set of all wireless clients \\
+$n$				& Number of Concerned wireless clients, $|U|=n$  \\
+$C$ 				& Set of available wireless channels\\
+$c$		        & Number of total wireless channels, $|C|=c$  \\
+$n_i$			& Number of wireless clients in network of AP $i$\\
+$P_i$			& Transmission power of AP $i$ \\
+$R_i$			& Downlink rate limit of access point $i$\\
+$d_{ij}$			& 1 if AP $i$ is in the receiving range of client $j$ \\
+$s_{ij}$			& 1 if AP $i$ is in sensing range of user $j$. \\
+				& Sometimes used if AP $i$ is in sensing range of AP $j$\\
+$w_{ij}$			& priority of user $j$ on AP $i$ \\			
+$r_{ij}^k$ 		& Link rate of client $j$ on AP $i$ using channel $k$\\
+$t_{ij}^k$		& Air-time of AP $i$ for user $j$ on channel $k$, \\
+				& used for time fairness formulation \\
+$b_{ij}^k$		& Bandwidth share of user $j$ on AP $i$ on channel $k$ \\			
+$x_{ij}^k$		& associate client $j$ to AP $i$ on channel $k$\\
+$\gamma_{ij}$	& Modulation coefficient of client $j$ on AP $i$ \\
+$\alpha_{ij}$	& Max share \% of user $j$ on AP $i$ \\
+$y_{ij\tau}$	& 1 if AP $i$ associates $\tau$ slots to client $j$ \\
+
+\hline
+\end{tabular}
+\label{problem_notations}
+\caption{Notations used to formulate the AP association optimisation problem}
+\end{table}
+%\end{footnotesize}
+\end{center}
+%======================================
+
+
+\section{fairness forms}
+
+Association control without consideration of fairness can lead to non-Pareto optimal channel capacity allocation. By a Pareto optimal allocation it means one such that there does not exist
+another feasible allocation where at least one node gets more bandwidth, and all others get at least the same bandwidth. \cite{06proportional_fairness_3G_networks} \\
+
+Two fairness definitions are widely used in network resource allocation. Proportional fairness allocates bandwidth to users in proportion to their data rates in the single AP case. It maximizes the sum of the logarithms of the allocated bandwidth of each user in the multiple-AP case. Max-min
+fairness, on the other hand, tries to allocate bandwidth equally among users to the extent possible. That is, a bandwidth allocation is max-min fair if there is no way to give more bandwidth to any user without decreasing the allocation of a user with less or equal bandwidth.\cite{06proportional_fairness_3G_networks}\\
+
+\section{Time based fairness works formulations}
+\subsection{the optimisation problem in \cite{14optimalAP_INFOCOM}}
+\label{optimisation problems}
+Authors assume that APs are with in the same interference range with the same orthogonal channel, which is true in dense WLAN. Clients receive saturated downlink traffic from remote sources via their respective APs. A client is vulnerable to hidden node collisions if it is located somewhere in the overlap region between coverage areas of two or more APs. \cite{14throughput_optimisation_AP_association_interefrence} \\
+
+\subsubsection{Single AP association without interference} 
+\begin{footnotesize}
+\begin{equation}
+\left\{
+\begin{tabular}{l}
+$\textbf{max}  \sum\limits_{j \in U} \log ( \sum\limits_{i \in A} w_{ij} x_{ij} b_{ij}) $ \\         
+\\
+\textbf{subject to} \\
+\\
+~~~~~$ \sum\limits_{i \in A} x_{ij} = 1 ~~~~~~~~~ \forall j \in U $ \\ 
+
+\\
+~~~~~$ b_{ij} = \frac{r_{ij}}{\sum\limits_{j' \in U} x_{ij'}}$ ~~~ $\forall i \in A, \forall j \in U $  \\
+
+\\
+~~~~~$ x_{ij} \in \{0,1\} ~~~~~~~~~~~~ \forall i \in A, \forall j \in U $ \\
+
+\end{tabular}
+\right.
+\end{equation}
+\end{footnotesize}
+The problem is non linear, time fairness is applied. The problem is NP-hard. The authors in \cite{08proportional_fairness_multiRate_LAN} proposes an 2+ $\epsilon$ approximation algorithm.
+ 
+\subsubsection{Single AP association with interference and Multi-channel use} 
+\begin{footnotesize}
+%\begin{large}
+\begin{equation}
+\left\{
+\begin{tabular}{l}
+$\textbf{max}  \sum\limits_{j \in U} \log ( \sum\limits_{i \in A} w_{ij} x_{ij}^k  b_{ij}^k) $ \\         
+\\
+\textbf{subject to} \\
+\\
+~~~~~$ \sum\limits_{i \in A} x_{ij}^k = 1 ~~~~~~~~~ \forall j \in U, \forall k \in C  $ \\ 
+
+\\
+~~~~~$ \sum\limits_{k \in C} x_{ij}^k = 1 ~~~~~~~~~ \forall j \in U, \forall i \in A  $ \\
+
+\\
+~~~~~$ b_{ij}^k = \frac{d_{ij} \cdot \alpha_{ij} \cdot r_{ij}^k}{\sum\limits_{j' \in U} x_{ij'}^k} \cdot \frac{1}{\sum\limits_{i' \in A} s_{i'j} \frac{\sum\limits_{j' \in U} \gamma_{ij} \cdot x_{i'j'}^k \cdot r_{i'j'}^k}{R_i'}} $ ~~~ $\forall i \in A, \forall j \in U $  \\
+
+\\
+~~~~~$ x_{ij}^k \in \{0,1\} ~~~~~~~~~~~~ \forall i \in A, \forall j \in U $ \\
+
+\end{tabular}
+\right.
+\end{equation}
+\end{footnotesize}
+%\end{large}
+
+The problem is non linear, time fairness is applied in the problem formulation. authors claim that the problem could be solved by discritising it into a linear program without integrality constraint, and after that apply rounding methods.  
+
+\subsubsection{Multiple AP association with interference and Multi-channel use} 
+\begin{footnotesize}
+%\begin{large}
+\begin{equation}
+\left\{
+\begin{tabular}{l}
+$\textbf{max}  \sum\limits_{j \in U} \log ( \sum\limits_{i \in A}(w_{ij} d_{ij} \sum\limits_{k \in C} t_{ij}^k r_{ij}^k)) $ \\         
+\\
+\textbf{subject to} \\
+\\
+~~~~~$ \sum\limits_{i \in A} t_{ij}^k \leq 1 ~~~~~~~~~ \forall j \in U, \forall k \in C  $ \\ 
+
+\\
+~~~~~$ \sum\limits_{j \in U} (t_{ij}^k + \sum\limits_{i' \in A} s_{i'j} \sum\limits_{j' \in U} t_{i'j'}^k) \leq 1 ~~~~~~~~~ \forall i \in A, \forall k \in C   $ \\
+
+\\
+~~~~~$ \sum\limits_{k \in C} t_{ij}^k \leq \alpha_{ij} ~~~~~~~~~ \forall i \in A, \forall j \in U  $ \\ 
+
+\\
+~~~~~$ 0\leq t_{ij}^k \leq 1   ~~~~~~~~~~~~ \forall k \in C, \forall j \in U, \forall i \in A  $ \\
+
+\end{tabular}
+\right.
+\end{equation}
+\end{footnotesize}
+%\end{large}
+The probelem is convex, and there is no need to integrality constraint, as the users could associate to different APs
+
+\subsection{The proportional fairness optimisation problem in \cite{08proportional_fairness_multiRate_LAN}}
+\subsubsection{The relaxed problem formulation without integrality constraint}
+The authors suppose that there is no interference between AP through the use of sufficient orthogonal channels.
+\begin{footnotesize}
+\begin{equation}
+\left\{
+\begin{tabular}{l}
+$\textbf{max}  \sum\limits_{j \in U} w_j \log b_j $ \\         
+\\
+\textbf{subject to} \\
+
+\\
+~~~~~$ b_j = \sum\limits_{i \in A} r_{ij} t_{ij}$ ~~~ $\forall j \in U $  \\
+
+\\
+~~~~~$ \sum\limits_{j \in U} t_{ij} \leq 1 ~~~~~~~~~ \forall i \in A $ \\ 
+
+\\
+~~~~~$ \sum\limits_{i \in A} t_{ij} \leq 1 ~~~~~~~~~ \forall j \in U $ \\ 
+
+
+\\
+~~~~~$ 0\leq t_{ij} \leq 1   ~~~~~~~~~~~~ \forall j \in U, \forall i \in A  $ \\
+
+\end{tabular}
+\right.
+\end{equation}
+\end{footnotesize}  
+
+The problem is convex and could be resolved in polynomial time. The authors propose an algorithm that after the resolution of the problem, applies rounding method in order to get an integral solution. 
+
+\subsubsection{The non linear problem with integrality constraint}
+\begin{footnotesize}
+\begin{equation}
+\left\{
+\begin{tabular}{l} 
+$\textbf{max}  \sum\limits_{j \in U} \sum\limits_{i \in A} x_{ij} w_j \log (r_{ij} \cdot t_{ij}) $ \\         
+\\
+\textbf{subject to} \\
+
+\\
+~~~~~$ \sum\limits_{i \in A} x_{ij} = 1 $ ~~~ $\forall j \in U $  \\
+
+\\
+~~~~~$ \sum\limits_{j \in U} x_{ij} t_{ij} \leq 1 ~~~~~~~~~ \forall i \in A $ \\ 
+
+\\
+~~~~~$ 0\leq t_{ij} \leq 1   ~~~~~~~~~~~~ \forall j \in U, \forall i \in A  $ \\
+
+\\
+~~~~~ $x_{ij} \in \{0,1\} ~~~~~~~~~~~~ \forall i \in A, \forall j \in U $ \\
+
+\end{tabular}
+\right.
+\end{equation}
+\end{footnotesize}  
+
+This formulation of the problem does not perform time fairness. In order to perform proportional fairness at the level of each AP, time fairness should be performed by dividing the time equally between the clients of the same AP, which is not performed here.   
+
+\subsubsection{Discretising schedule time in the non linear problem to have a linear problem}
+\begin{footnotesize}
+\begin{equation}
+\left\{
+\begin{tabular}{l} 
+$\textbf{max}  \sum\limits_{i \in A} \sum\limits_{j \in U} \sum\limits_{\tau =1}^D y_{ij\tau} w_j   \log (r_{ij} \frac{\tau}{D}) $ \\         
+\\
+\textbf{subject to} \\
+
+\\
+~~~~~$ \sum\limits_{i \in A} \sum\limits_{\tau =1}^D y_{ij\tau} = 1 $ ~~~ $\forall j \in U $  \\
+
+\\
+~~~~~$ \sum\limits_{j \in U} \sum\limits_{\tau =1}^D y_{ij\tau} \frac{\tau}{D} \leq 1 ~~~~~~~~~ \forall i \in A $ \\ 
+
+\\
+~~~~~ $y_{ij\tau} \in \{0,1\} ~~~~~~~~~~~~ \forall i \in A, \forall j \in U $ \\
+
+\end{tabular}
+\right.
+\end{equation}
+\end{footnotesize}
+
+In this problem formulation, the fraction of time is synchronised through a number of slots attribution. The total number of slots D is approximated as  $D=(1+\epsilon) \frac{\sum\limits_{j \in U} w_j}{min \{ w_j|j \in U\}}$
+
+
+\subsection{Network Cooperation for Client-AP Association Optimization \cite{12Network_cooperation_AP_association}}
+
+in this work, interference is supposed and taken into account between foreign networks, and intra network access points are supposed using orthogonal channels to avoid interference. But as being in a foreign network, association of clients could not be done with those networks. While in \cite{14optimalAP_INFOCOM}, the interference between intra network access points is supposed for a non sufficient number of orthogonal channels, and possible associations are envisaged. For that, in \cite{14optimalAP_INFOCOM}, the central control of the whole interfering access points will bring more refined performance than that done independently by each controller. 
+
+We just note, that the notations used in the formulated problem differ slightly from those used previously and are summarised in table \ref{problem_notations in 12}.
+
+\begin{center} 
+%\begin{footnotesize}
+\begin{table}[htbp]
+\centering
+\begin{tabular}{|c|l|} %\
+\hline
+Notation 		& Description \\
+\hline
+$N$ 				& set of available networks \\
+$A_i$			& Set of available access points in the network $i$\\
+$U_i$			& Set of wireless clients in network $i$\\
+$B_{ik}$			& set of co-channel foreign APs of $k$th AP of $i$th network \\	
+$C_{ik}$			& Set of co-channel foreign APs outside carriere sense range,\\
+				& but within the interference radius of $k$th AP of $i$th network \\
+$r_{ij}^k$ 		& Link rate of client $j$ on AP $k$ in the network $i$\\
+$t_{ij}^k$		& Air-time of AP $k$ of network $i$ given to the user $j$, \\
+$x_{ij}^k$		& associate client $j$ to AP $k$ in the network $i$\\
+
+\hline
+\end{tabular}
+\label{problem_notations in 12}
+\caption{Notations used to formulate the AP association optimisation problem in \cite{12Network_cooperation_AP_association}}
+\end{table}
+%\end{footnotesize}
+\end{center}
+%======================================
+
+\subsubsection{Individual Network Optimization (without cooperation)}
+In this problem formulation that is non linear,a could be resolved as in \cite{08proportional_fairness_multiRate_LAN}, $C_{ik}$ and $B_{ik}$ are not provided. 
+
+\begin{footnotesize}
+\begin{equation}
+\left\{
+\begin{tabular}{l} 
+$\textbf{max} \sum\limits_{j \in U_i} \log (\sum\limits_{k \in A_i} r_{ij}^k  x_{ij}^k  t_{ij}^k) $ \\         
+\\
+\textbf{subject to} \\
+
+\\
+~~~~~$t_{ij}^k = \frac{1}{\sum\limits_{j' \in U_i} x_{ij'}^k} ~~~~ \forall k \in A_i, \forall j \in U_i $  \\
+
+\\
+~~~~~$ \sum\limits_{k \in A_i} x_{ij}^k = 1 $ ~~~~~~ $\forall j \in U_i $  \\
+
+\\
+~~~~~ $x_{ij}^k \in \{0,1\} ~~~~~~~~~ \forall k \in A_i, \forall j \in U_i $ \\
+
+\end{tabular}
+\right.
+\end{equation}
+\end{footnotesize}
+
+
+\subsubsection{Cooperative Optimization}
+In this formulation problem, $C_{ik}$ and $B_{ik}$ are used in order to enhance the performance. 
+\begin{footnotesize}
+\begin{equation}
+\left\{
+\begin{tabular}{l} 
+$\textbf{max}  \sum\limits_{i=1}^N \sum\limits_{j \in U_i}  \log ( \sum\limits_{k \in A_i} r_{ij}^k  x_{ij}^k t_{ij}^k) $ \\         
+\\
+\textbf{subject to} \\
+
+\\
+~~~~~$ t_{ij}^k = \frac{1}{\sum\limits_{j' \in U_i} x_{ij'}^k} \cdot \frac{1}{(1+|B_{ik}|)(1+\alpha |C_{ik}|)}     $ ~ $\forall j \in U_i, \forall k \in A_i, \forall i \in [1, N] $  \\ 
+
+\\
+~~~~~$ \sum\limits_{k \in A_i} x_{ij}^k = 1 $ ~~~~~~ $\forall j \in U_i, \forall i \in [1,N] $  \\
+
+\\
+~~~~~ $x_{ij}^k \in \{0,1\} ~~~~~~~~ \forall j \in U_i, \forall k \in A_i, \forall i \in [1,N] $ \\
+
+\end{tabular}
+\right.
+\end{equation}
+\end{footnotesize}
+
+The authors propose to use the same algorithm in \cite{08proportional_fairness_multiRate_LAN} in order to resolve the non linear problem. 
+
+\subsection{AP Association for Proportional Fairness in Multirate WLANs \cite{14AP_association_multirate_WLAN}}
+The initial problem to solve is the following:
+\begin{footnotesize}
+\begin{equation}
+\left\{
+\begin{tabular}{l} 
+$\textbf{max}  \sum\limits_{j \in U}  w_j \log (\sum\limits_{i \in A} x_{ij} \cdot r_{ij} \cdot t_{ij}) $ \\         
+\\
+\textbf{subject to} \\
+
+\\
+~~~~~$ \sum\limits_{i \in A} x_{ij} = 1 $ ~~~ $\forall j \in U $  \\
+
+\\
+~~~~~$ \sum\limits_{j \in U} x_{ij} t_{ij} = 1 ~~~~~~~~~ \forall i \in A $ \\ 
+
+\\
+~~~~~$ 0\leq t_{ij} \leq 1   ~~~~~~~~~~~~ \forall j \in U, \forall i \in A  $ \\
+
+\\
+~~~~~ $x_{ij} \in \{0,1\} ~~~~~~~~~~~~ \forall i \in A, \forall j \in U $ \\
+
+\end{tabular}
+\right.
+\end{equation}
+\end{footnotesize}  
+
+The algorithm proposed by the authors consists to relax the integrality condition by allowing the connection to all the APs, having the x variable to 1 for all AP. In order to overcome the relaxation gap, authors add a compensate function in the network utility, and the optimisation problem become as in the following section 
+ 
+\subsubsection{The relaxed optimisation problem with the compensation function} 
+\begin{footnotesize}
+\begin{equation}
+\left\{
+\begin{tabular}{l} 
+$\textbf{max}  \sum\limits_{j \in U}  w_j \log (\sum\limits_{i \in A} t'_{ij} r_{ij}) + \sum\limits_{j \in U} w_j \sum\limits_{i \in A} t'_{ij} \log (r_{ij}) $ \\         
+\\
+\textbf{subject to} \\
+
+\\
+~~~~~$ \sum\limits_{i \in A} t'_{ij} \leq 1 $ ~~~ $\forall j \in U $  \\
+
+\\
+~~~~~$ \sum\limits_{j \in U} t'_{ij} = 1 ~~~~~~~~~ \forall i \in A $ \\ 
+
+\\
+~~~~~$ 0\leq t'_{ij} \leq 1   ~~~~~~~~~~~~ \forall j \in U, \forall i \in A  $ \\
+
+\end{tabular}
+\right.
+\end{equation}
+\end{footnotesize}   
+ 
+The resolution of this problem is done in polynomial time, and the results is the time attribution of users with the all APs. The resulted time affectation will be used in the next convex problem with the variable of affectation of users to APs present in order to resolve the relaxation problem. The problem will become as the following:
+
+\subsubsection{The optimisation problem with the compensation function and fixed time affectation} 
+ 
+\begin{footnotesize}
+\begin{equation}
+\left\{
+\begin{tabular}{l} 
+$\textbf{max}  \sum\limits_{j \in U}  w_j \log (\sum\limits_{i \in A} t'_{ij} x'_{ij} r_{ij}) + \sum\limits_{j \in U} w_j \sum\limits_{i \in A} t'_{ij} x'_{ij} \log (r_{ij}) $ \\         
+\\
+\textbf{subject to} \\
+
+\\
+~~~~~$ \sum\limits_{i \in A} x'_{ij} > 1 $ ~~~ $\forall j \in U $  \\
+
+\\
+~~~~~$ \sum\limits_{j \in U} t'_{ij} x'_{ij} = 1 ~~~~~~~~~ \forall i \in A $ \\ 
+
+\\
+~~~~~$ x'_{ij} \geq 0   ~~~~~~~~~~~~ \forall j \in U, \forall i \in A  $ \\
+
+\end{tabular}
+\right.
+\end{equation}
+\end{footnotesize}    
+ 
+We remind that in this problem the $t'_{ij}$ are fixed and only $x_{ij}$ are variables of the problem. The result of this part is the different affectation of clients with different APs (not all the APs). 
+
+\subsection{Throughput Optimization via Association Control in Wireless LANs \cite{16throughput_optimisation_association_bandwidth}}
+In this problem formulation, authors take into account the clients demand as constraints.
+
+\begin{center} 
+%\begin{footnotesize}
+\begin{table}[htbp]
+\centering
+\begin{tabular}{|c|l|} %\
+\hline
+Notation 		& Description \\
+\hline
+$T$ 				& The allocable transmission time of AP \\
+$B_i$			& The bandwidth demand of user $i$\\
+$b_{ij}$			& The allocated bandwidth to user $j$ by AP $i$ \\
+$\tilde{b_i}$	& The total allocated bandwidth to user $i$\\
+\hline
+\end{tabular}
+\label{problem_notations in 16}
+\caption{Notations used in \cite{16throughput_optimisation_association_bandwidth}}
+\end{table}
+%\end{footnotesize}
+\end{center}
+
+\begin{footnotesize}
+\begin{equation}
+\left\{
+\begin{tabular}{l} 
+$\textbf{max}  \sum\limits_{j \in U} U_j = \sum\limits_{j \in U} \log (\sum\limits_{i \in A} \frac{ x_{ij} r_{ij} t_{ij}}{T} ) $ \\         
+\\
+\textbf{subject to} \\
+
+\\
+~~~~~$ x_{ij} \in \{0,1 \} $ ~~~~~~~~~ $\forall j \in U,  \forall i \in A $  \\
+
+\\
+~~~~~$ \sum\limits_{i \in A} x_{ij} = 1 $ ~~~~~~~~~ $\forall j \in U $  \\
+
+\\
+~~~~~$ 0\leq t_{ij} \leq T_{ij} ~~~~~~~~~ \forall i \in A, \forall j \in U  $ \\ 
+
+\\
+~~~~~$  0 \leq \sum\limits_{j \in U} t_{ij} \leq T  ~~~~~~ \forall i \in A  $ \\
+
+\end{tabular}
+\right.
+\end{equation}
+\end{footnotesize}
+
+The authors propose an algorithm in order to resolve the problem. The algorithm first assigns the users to the APs in a manner that minimises the load of APs by sorting the users demands in descending order. After that, the second algorithm attributes the time to users of the same AP in an iterative manner. 
+
+\section{Access based fairness works formulations}
+\subsection{Association Optimization in Wi-Fi Networks: Use of an Access-based Fairness \cite{16AP_association_optimisation_fairness}}
+the authors of this work formulate the problem of association. But after that thy propose an algorithm based on local search that starts by a feasible solution (associations based on RSSI) and at each iteration tries to enhance the solution by changing only one client association. The end of the iterations of the algorithm could be based on different parameters, namely on resources like time and memory, or if the state space of clients is searched. \\ 
+
+\subsubsection{orthogonal channels problem formulation}
+\begin{footnotesize}
+\begin{equation}
+\left\{
+\begin{tabular}{l} 
+$\textbf{max}  \sum\limits_{j \in U} \log (\sum\limits_{i \in A} b_{ij} x_{ij}) $ \\         
+\\
+\textbf{subject to} \\
+
+\\
+~~~~~$ b_{ij}= \frac{1}{\sum\limits_{k \in U} \frac{x_{ik}}{r_{ik}}} $ ~~~~~~~~~~~~~~~~~ $\forall j \in U,  \forall i \in A $  \\
+
+\\
+~~~~~$ \sum\limits_{i \in A} x_{ij} = 1 $ ~~~~~~~~~~~~~~~~~~~~~~ $\forall j \in U $  \\
+
+\\
+~~~~~$ x_{ij} \in \{0,1 \} $ ~~~~~~~~~~~~~~~~~~~~~~ $\forall j \in U,  \forall i \in A $  \\
+
+~~~~~if $r_{ij}=0$ then $x_{ij}=0$  ~~~~~~~~~ $\forall j \in U,  \forall i \in A $  \\
+
+
+\end{tabular}
+\right.
+\end{equation}
+\end{footnotesize}
+
+\subsubsection{Non orthogonal channels problem formulation}
+The variable $s_{ik}$ denotes that the AP $i$ and $j$ use the same channel, and they are therefore in conflict creating interference if they communicate at the same time.
+
+\begin{footnotesize}
+\begin{equation}
+\left\{
+\begin{tabular}{l} 
+$\textbf{max}  \sum\limits_{j \in U} \log (\sum\limits_{i \in A} b_{ij} x_{ij}) $ \\         
+\\
+\textbf{subject to} \\
+
+\\
+~~~~~$ b_{ij}= \frac{1}{\sum\limits_{j' \in U} x_{ij'}} \cdot \frac{1}{\sum\limits_{k \in A} \left (\frac{s_{ik}}{\sum\limits_{j' \in U} x_{kj'}} \cdot \sum\limits_{j' \in U} \frac{x_{kj'}}{r_{kj'}}\right )} $ \\~~~~~~~~~~~~~~~~~ $\forall j \in U,  \forall i \in A $  \\
+
+\\
+~~~~~$ \sum\limits_{i \in A} x_{ij} = 1 $ ~~~~~~~~~~~~~~~~~~~~~~ $\forall j \in U $  \\
+
+\\
+~~~~~$ x_{ij} \in \{0,1 \} $ ~~~~~~~~~~~~~~~~~~~~~~ $\forall j \in U,  \forall i \in A $  \\
+
+~~~~~if $r_{ij}=0$ then $x_{ij}=0$  ~~~~~~~~~ $\forall j \in U,  \forall i \in A $  \\
+
+
+\end{tabular}
+\right.
+\end{equation}
+\end{footnotesize}
+
+\section{works without fairness form formulation}
+\subsection{An Optimal Station Association Policy for Multi-Rate IEEE802.11 Wireless LANs \cite{07optimal_association_MSWIM}} 
+The authors introduce the term of user activity, where the sum of user activities (sum of $\alpha_j$) is normalised to 1. $\alpha_j$ is not dependent to the physical rate nor the associated AP. The $L_j$ corresponds to the data length in bits. The authors present a first formulation of the problem as: \\ 
+
+
+\begin{footnotesize}
+\begin{equation}
+\left\{
+\begin{tabular}{l} 
+$\textbf{max}  \sum\limits_{i \in A} W(i) $ \\         
+\\
+\textbf{subject to} \\
+
+\\
+~~~~~$ x_{ij} \leq  d_{ij} $ ~~~~~~~~~~~~~~~~~ $ \forall i \in A, \forall j \in U$  \\
+
+\\
+~~~~~$ \sum\limits_{i \in A} x_{ij} = 1 $ ~~~~~~~~~~~~~~~~~~~~~~ $\forall j \in U $  \\
+
+\\
+~~~~~$ x_{ij} \in \{0,1 \} $ ~~~~~~~~~~~~~~~~~~~~~~ $\forall j \in U,  \forall i \in A $  \\
+
+\\
+~~~~~$ C_{ij} \in \{0,1 \} $ ~~~~~~~~~~~~~~~~~~~~~~ $\forall j \in U,  \forall i \in A $  \\
+
+\\
+~~~~~$ \sum\limits_{j \in U} \alpha_j = 1 $ ~~~~~~~~~~~~~~~~~~~~~~ \\
+
+\\
+~~~~~$ W(i)= \sum\limits_{j \in U_i} \frac{L_j \alpha_j}{\sum\limits_{j' \in U} \alpha_j' t_{ij'}   x_{ij'}} $ ~~~~~~~~~~~~~~~~~~~~~~ \\
+
+
+\end{tabular}
+\right.
+\end{equation}
+\end{footnotesize}
+
+After that the authors introduce the logarithmic presentation in order to enhance the fairness, and also simplifies the equation by supposing that all the users associated to the same AP receives the same time frame $T_i$. In addition, the authors suppose the data having the same length and delete it from the equation. The problem formulation becomes as follows:  \\
+
+\begin{footnotesize}
+\begin{equation}
+\left\{
+\begin{tabular}{l} 
+$\textbf{max}  \sum\limits_{i \in A} F(i) $ \\         
+\\
+\textbf{subject to} \\
+
+\\
+~~~~~$ \sum\limits_{j \in U} \alpha_j = 1 $ ~~~~~~~~~~~~~~~~~~~~~~ \\
+
+\\
+~~~~~$ F(i)= \sum\limits_{j \in U_i} \alpha_j \ln \left[ \frac{1}{T_i \sum\limits_{j'\in U_i} \alpha_j'} \right]     $ ~~~~~~~~~~~~~~~~~~~~~~ \\
+\\
+
+\end{tabular}
+\right.
+\end{equation}
+\end{footnotesize}
+
+which is equivalent to:\\
+
+\begin{footnotesize}
+\begin{equation}
+\left\{
+\begin{tabular}{l} 
+$\textbf{min}  \sum\limits_{i \in A} \sum\limits_{j \in U_i} \alpha_j \ln \left[ T_i \sum\limits_{j'\in U_i} \alpha_j' \right] $ \\         
+\\
+\textbf{subject to} \\
+
+\\
+~~~~~$ \sum\limits_{j \in U} \alpha_j = 1 $ ~~~~~~~~~~~~~~~~~~~~~~ \\
+
+
+\end{tabular}
+\right.
+\end{equation}
+\end{footnotesize}
+
+\section{MU-MIMO formulation \cite{15AP_association_MIMO}} 
+\begin{footnotesize}
+\begin{equation}
+\left\{
+\begin{tabular}{l} 
+$\textbf{max}  \sum\limits_{i \in A} \sum\limits_{j \in U} r_{ij}$ \\         
+\\
+\textbf{subject to} \\
+
+\\
+~~~~~$ \sum\limits_{i \in A} x_{ij} \leq 1 $ ~~~~~~~~~~~~~~~~~~~~~~ $\forall j \in U $  \\
+
+\\
+~~~~~$ J_{g_i} \leq x_{ij}   $ ~~~~~~~~~~~~~~~~~ $ \forall j \in g_i \in G_i, i\in A$  \\
+
+
+\\
+~~~~~$ \sum\limits_{j \in g_i \in G_i} J_{g_i} \leq 1 $ ~~~~~~~~~~~~~~~~~~~ $\forall i \in A $  \\
+
+
+\\
+~~~~~$ r_{ij}= \frac{\sum\limits_{j \in g_i \in G_i} r_j{g_i} J_{g_i}}{\sum\limits_{g_i \in G_i} J_{g_i}}  $~~~~~~~~~~~~~~~~~~~~~~ $\forall j \in U,  \forall i \in A $  \\
+
+
+
+\\
+~~~~~$ x_{ij} \in \{0,1 \} $ ~~~~~~~~~~~~~~~~~~~~~~ $\forall j \in U,  \forall i \in A $  \\
+
+\\
+~~~~~$ J_{g_i} \in \{0,1 \} $ ~~~~~~~~~~~~~~~~~~~~~~ $\forall g_i \in G_i,  \forall i \in A $  \\
+
+\end{tabular}
+\right.
+\end{equation}
+\end{footnotesize}
+
+\section{distributed solutions for AP-association}
+
+\subsection{Works based on Access fairness}
+
+\subsubsection{SmartAssoc \cite{13smartAssoc}}
+In this work, the authors consider the load that the new client add to the APs, even it does not associate to them, this is for interference causes. $\delta_{j,k,i}$ is the load that the user $i$ adds to the $AP_j$ when $i$ is associated to the $AP_k$
+
+\begin{footnotesize}
+\begin{equation}
+\left\{
+\begin{tabular}{l} 
+$\textbf{min $max_k$}  \sum\limits_{i \in A, j \in U} x_{ij} \delta_{j,k,i}$ \\         
+\\
+\textbf{subject to} \\
+
+\\
+~~~~~$ \sum\limits_{i \in A} x_{ij} = 1 $ ~~~~~~~~~~~~~~~~~~~~~~ $\forall j \in U $  \\
+
+\\
+~~~~~$ x_{ij} \in \{0,1 \} $ ~~~~~~~~~~~~~~~~~~~~~~ $\forall j \in U,  \forall i \in A $  \\
+
+\end{tabular}
+\right.
+\end{equation}
+\end{footnotesize}
+
+\subsection{Works based on Proportional fairness}
+
+\subsubsection{Throughput optimization in wireless local networks with inter-AP interference via a joint-association control, rate control, and contention resolution \cite{14throughput_optimisation_AP_association_interefrence}}
+In this work that the authors propose the algorithm to be executed at the AP level, where each AP runs its calculation part, and the APs comunicate through the backbone network, the rate and the backoff time to be applied by the Access points are produced in addition to the association decision. This method concerns the downlink applications. The authors suppose the hidden terminal scenarios, in which the interefering Access points are not concerned by the DCF synchronisation procedure and the information are braught through the clients. $A_j$ is the set of access points that the user $j$ could associate with, and $U_i$ is the set of users that could associate to the Acces point $i$. $bo_i$ and $T_i$ are the backoff and transmission time of $AP_i$, while $T_i/\{T_i+bo_i/\}$ and $bo_i/\{T_i+bo_i\}$ are the normalised transmission and backoff time of $AP_i$. Where the $T_i$ is equal to $T_H+L_i+T_{SIFS}+T_{ACK}+T_{DIFS}$. $s_{ij}$ is the success probability of transmission of the $AP_i$ to the client $j$. $I_{ij}$ is the set of interfering Access points. in the formulation problem, $\rho_i=T_i/bo_i$.
+
+\begin{footnotesize}
+\begin{equation}
+\left\{
+\begin{tabular}{l} 
+$\textbf{max}  \sum\limits_{j \in U} \log \left(\sum\limits_{i \in U_j} b_{ij}\right) $ \\         
+\\
+\textbf{subject to} \\
+
+\\
+~~~~~$ b_{ij} \leq S_{ij} . M_i . x_{ij} . \frac{L_i R_i}{T_i}, $ ~~~~~~~~~~~~~~~~~~~~~~~~~$\forall i \in U_j, \forall j \in U $  \\
+
+
+\\
+~~~~~$M_i \leq  \frac{\rho_i}{1+\rho_i},  $~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ $ \forall i \in A $  \\
+
+\\
+~~~~~$ S_{ij} \leq \prod_{k \in I_{ij}} \frac{1}{1+ \rho_k} \left(1-\frac{\rho_k}{T_k} \right)^{T_H+L_i}, $~~~~~~~ $ \forall i \in A_j, \forall j \in U $  \\
+
+\\
+~~~~~$\sum\limits_{j \in U_i} t_{ij} \leq 1, $~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ $ \forall i \in A $  \\
+
+\\
+~~~~~$0 \leq t_{ij} \leq 1, $~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ $\forall j \in U_i, \forall i \in A $  \\
+
+\\
+~~~~~$ \sum\limits_{i \in A_j} x_{ij} = 1, $ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ $\forall j \in U $  \\
+
+\\
+~~~~~$ x_{ij} \in \{0,1 \}, $ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ $\forall j \in U_i,  \forall i \in A $  \\
+
+\\
+~~~~~$\rho_i^{min} \leq \rho_i \leq \rho_i^{max}, $~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ $\forall i \in A $  \\
+
+
+
+\end{tabular}
+\right.
+\end{equation}
+\end{footnotesize}
+
+The authors perform many modifications to the formulated problem through relaxation and geometric approximation. After that the resulted formulation is decomposable in a manner that each AP calculates its part, and the APs exchange their calculation through the wired backbone. Also, the client should, at the beginning, send interference information to all APs that could associate with to allow them performing the calculation. \\ 
+
+
+
+\section{Conclusion}
+\label{Conclusion}
+We summarize and Conclude here
+
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{contribution.bib}
+\end{document}
+
+
+\grid
